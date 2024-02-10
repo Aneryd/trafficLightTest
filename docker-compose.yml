@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  nginx:
+    build: 
+      context: .
+      dockerfile: docker/Nginx.Dockerfile
+    ports:
+      - 80:80
+    links:
+      - app
+    volumes:
+      - ./:/var/www/trafficLightTest
+    depends_on:
+      - db
+      - app
+      - node
+  app:
+    build: 
+      context: .
+      dockerfile: docker/Fpm.Dockerfile
+    ports:
+      - 9000:9000
+    volumes:
+      - ./:/var/www/trafficLightTest
+    links:
+      - db
+  db:
+    image: mysql:latest
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: traffic_light_test
+      MYSQL_ROOT_PASSWORD: password
+
+  node:
+    build:
+      context: .
+      dockerfile: docker/Node.Dockerfile
+    tty: true
+    volumes:
+        - ./:/var/www/trafficLightTest
+
+volumes:
+  db:
